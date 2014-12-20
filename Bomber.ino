@@ -33,6 +33,8 @@ boolean disconnected = false;
 boolean slave_updated = false;
 
 
+byte currentMaze = 0;
+
 //multijoueur code
 #define SLAVE_PAUSED 1
 #define I_AM_MASTER 2
@@ -40,6 +42,7 @@ boolean slave_updated = false;
 #define PLAYER_Y 11
 #define PLAYER_DROP_BOMB 21
 #define I_AM_DEAD 30 //si je meurt je previen mo pote
+#define NUM_LEVEL 40
 #define SLAVE_DATA_BUFFER_LENGTH 8
 
 
@@ -79,10 +82,10 @@ void goTitleScreen()
 
 void initGame()
 {
+  currentMaze = 0;
   P1StartPos();
   P2StartPos();
   loadNextMaze();
-
 
   for(byte i=0;i<NB_BOMBE;i++)
   {
@@ -130,9 +133,6 @@ void loop(){
     break;
   }
 
-  //todo pour test
-  paused = false;
-
   while(true)
   {
     if(gb.update())
@@ -148,7 +148,6 @@ void loop(){
       }
       else
       {
-        //updateSlavePlayer();
         updateSlave();
         updatePlayer(&slavePlayer);
       }

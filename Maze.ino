@@ -104,7 +104,6 @@ void DrawMaze()
     }
   }
 }
-byte currentMaze = 0;
 
 void loadNextMaze()
 {

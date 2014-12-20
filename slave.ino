@@ -74,6 +74,7 @@ void receiveEvent(int howMany)
   while(Wire.available())    // slave may send less than requested
   {
     char data_in = Wire.read(); // receive byte per byte
+    byte numLevelTmp;
     switch(data_in){
    case PLAYER_X:
         masterPlayer.x = Wire.read();
@@ -87,6 +88,14 @@ void receiveEvent(int howMany)
         break;
       case I_AM_DEAD:
         masterPlayer.isAlive = Wire.read() == '1';
+        break;
+      case NUM_LEVEL:
+         numLevelTmp= (byte)Wire.read();
+        if(currentMaze != numLevelTmp)
+        {
+          currentMaze = (numLevelTmp - 1);
+          loadNextMaze();
+        }
         break;
     default:
       break;

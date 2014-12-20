@@ -65,6 +65,8 @@ void masterWrite(){
   Wire.write(masterPlayer.dropBombe ? '1' : '0'); //identifier
   Wire.write(I_AM_DEAD); //identifier
   Wire.write(masterPlayer.isAlive? "1" : "0"); //identifier
+  Wire.write(NUM_LEVEL); //identifier
+  Wire.write(currentMaze); //identifier
   Wire.endTransmission();    // stop transmitting
 }
 
