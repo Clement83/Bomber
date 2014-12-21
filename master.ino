@@ -19,14 +19,14 @@ void masterRead(){
       char data_in = Wire.read(); // receive byte per byte
       switch(data_in){
       case PLAYER_X:
-        slavePlayer.x = Wire.read();
+        slavePlayer.xt = Wire.read();
         break;
       case PLAYER_Y:
-        slavePlayer.y = Wire.read();
+        slavePlayer.yt = Wire.read();
         break;
       case PLAYER_DROP_BOMB:
         if(Wire.read() == '1')
-          DropBombe(slavePlayer.x,slavePlayer.y,slaveBombe,DIST_EXPLOSION);
+          DropBombe(slavePlayer.xt*4,slavePlayer.yt*4,slaveBombe);
         break;
       case I_AM_DEAD:
         slavePlayer.isAlive = Wire.read() == '1';
@@ -57,9 +57,9 @@ void masterRead(){
 void masterWrite(){
   Wire.beginTransmission(2); // transmit to device #2
   Wire.write(PLAYER_X); //identifier
-  Wire.write(masterPlayer.x); //identifier
+  Wire.write(masterPlayer.xt); //identifier
   Wire.write(PLAYER_Y); //identifier
-  Wire.write(masterPlayer.y); //identifier
+  Wire.write(masterPlayer.yt); //identifier
   Wire.write(PLAYER_DROP_BOMB); //identifier
   Wire.write(masterPlayer.dropBombe ? '1' : '0'); //identifier
   Wire.write(I_AM_DEAD); //identifier

@@ -33,9 +33,9 @@ void requestEvent()
 
   //the slave can only answer with one "write" so you have to put all the variables in an string
   output[0] = PLAYER_X; //identifier
-  output[1] = slavePlayer.x; 
+  output[1] = slavePlayer.xt; 
   output[2] = PLAYER_Y; 
-  output[3] = slavePlayer.y; 
+  output[3] = slavePlayer.yt; 
   output[4] = PLAYER_DROP_BOMB; 
   output[5] = slavePlayer.dropBombe ? '1' : '0'; 
   output[6] = I_AM_DEAD; 
@@ -77,14 +77,14 @@ void receiveEvent(int howMany)
     byte numLevelTmp;
     switch(data_in){
    case PLAYER_X:
-        masterPlayer.x = Wire.read();
+        masterPlayer.xt = Wire.read();
         break;
       case PLAYER_Y:
-        masterPlayer.y = Wire.read();
+        masterPlayer.yt = Wire.read();
         break;
       case PLAYER_DROP_BOMB:
         if(Wire.read() == '1')
-          DropBombe(masterPlayer.x,masterPlayer.y,masterBombe,DIST_EXPLOSION);
+          DropBombe(masterPlayer.xt*4,masterPlayer.yt*4,masterBombe);
         break;
       case I_AM_DEAD:
         masterPlayer.isAlive = Wire.read() == '1';

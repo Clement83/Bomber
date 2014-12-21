@@ -3,10 +3,14 @@
 Gamebuino gb;
 #include <Wire.h>
 
+const byte MiniBomber[] PROGMEM = {
+  8,5,0x70,0x88,0xD8,0xA8,0xD8,};
+const byte MiniMonster[] PROGMEM = {
+  8,5,0x70,0xA8,0xF8,0xF8,0x70,};
 
 typedef struct {
   char x, y,xt,yt;
-  bool isAlive, dropBombe;
+  bool isAlive, dropBombe, isMonster;
 }
 Player;
 
@@ -27,6 +31,7 @@ void ExplosionBombe(Bombe laBombe);
 void TestReactionEnChaineBombe(byte x,byte y);
 bool SetTuileExplosion(byte tuileX,byte tuileY);
 void updatePlayerAll(Player *play);
+void updateMonstre(Player *monstre);
 
 boolean isMaster = false;
 boolean paused = true;
@@ -49,14 +54,18 @@ byte currentMaze = 0;
 
 #define TIMER_BOMBE 80;
 #define NB_BOMBE 3
-#define DIST_EXPLOSION 3
+#define DIST_EXPLOSION 3//Distance de base de l'explosion
 #define NB_FRAME_EXPLOSION 30
 
-Player masterPlayer, slavePlayer;
+Player masterPlayer, slavePlayer, monstre1, monstre2;
 
 Bombe masterBombe[NB_BOMBE];
 Bombe slaveBombe[NB_BOMBE];
 
+Bombe M1Bombe[NB_BOMBE];
+Bombe M2Bombe[NB_BOMBE];
+
+byte distExplosion;
 const char strMaster[] PROGMEM = "Host (master)";
 const char strSlave[] PROGMEM = "Join (slave)";
 const char* const menu[2] PROGMEM = {
@@ -86,7 +95,10 @@ void initGame()
 {
   P1StartPos();
   P2StartPos();
+  M1StartPos();
+  M2StartPos();
   loadNextMaze();
+  distExplosion =DIST_EXPLOSION;
 
   for(byte i=0;i<NB_BOMBE;i++)
   {
@@ -103,6 +115,7 @@ void P1StartPos()
   masterPlayer.xt = 1;
   masterPlayer.yt = 1;
   masterPlayer.isAlive = true;
+  masterPlayer.isMonster = false;
 }
 void P2StartPos()
 {
@@ -111,6 +124,26 @@ void P2StartPos()
   slavePlayer.xt = 19;
   slavePlayer.yt = 10;
   slavePlayer.isAlive = true;
+  slavePlayer.isMonster = false;
+}
+
+void M1StartPos()
+{
+  monstre1.x = 4;
+  monstre1.y = 40;
+  monstre1.xt = 1;
+  monstre1.yt = 10;
+  monstre1.isAlive = true;
+  monstre1.isMonster = true;
+}
+void M2StartPos()
+{
+  monstre2.x = 76;
+  monstre2.y = 4;
+  monstre2.xt = 19;
+  monstre2.yt = 1;
+  monstre2.isAlive = true;
+  monstre2.isMonster = true;
 }
 
 
@@ -142,18 +175,24 @@ void loop(){
       {
         break;
       }
+
+      updatePlayerAll(&masterPlayer);
+      updatePlayerAll(&slavePlayer);
+      updatePlayerAll(&monstre1);
+      updatePlayerAll(&monstre2);
+
       if(isMaster)
       {
         updatePlayer(&masterPlayer);
-        updateMaster();
+        updateMonstres();
+        // updateMaster();
       }
       else
       {
-        updateSlave();
         updatePlayer(&slavePlayer);
+        // updateSlave();
       }
-      updatePlayerAll(&masterPlayer);
-      updatePlayerAll(&slavePlayer);
+
       UpdateBombes();
 
       DrawMaze();
@@ -168,6 +207,21 @@ void loop(){
     };
   }
 
+}
+
+void updateMonstres()
+{
+  updateMonstre(&monstre1);
+  updateMonstre(&monstre2);
+}
+
+void updateMonstre(Player *monstre)
+{
+  if(monstre->x == (monstre->xt*4))
+  {
+    //on vas choisir une nouvelle destination 
+  }
+  
 }
 
 void gameOverScreen()
@@ -256,19 +310,19 @@ void updatePlayer(Player *play)
         if(TileIsOk(play->xt,(play->yt+1)))
           play->yt++;
       }
+    }
 
-      if  (gb.buttons.pressed(BTN_A))
+    if  (gb.buttons.pressed(BTN_A))
+    {
+      if(isMaster)
       {
-        if(isMaster)
-        {
-          DropBombe(play->x,play->y,masterBombe);
-        }
-        else
-        {
-          DropBombe(play->x,play->y,slaveBombe);
-        }
-        play->dropBombe = true;
+        DropBombe(play->xt*4,play->yt*4,masterBombe);
       }
+      else
+      {
+        DropBombe(play->xt*4,play->yt*4,slaveBombe);
+      }
+      play->dropBombe = true;
     }
 
     if(getTile(play->xt,play->yt)>2)
@@ -278,7 +332,7 @@ void updatePlayer(Player *play)
   }
 }
 
-void DropBombe(byte x,byte y, Bombe * bombeArray,byte distE )
+void DropBombe(byte x,byte y, Bombe * bombeArray )
 {
   byte cpt = 0;
   do
@@ -286,7 +340,7 @@ void DropBombe(byte x,byte y, Bombe * bombeArray,byte distE )
     if(bombeArray[cpt].isAlive == false)
     {
       bombeArray[cpt].timer = TIMER_BOMBE;
-      bombeArray[cpt].distExplos = DIST_EXPLOSION;
+      bombeArray[cpt].distExplos = distExplosion;
       bombeArray[cpt].isAlive = true;
       bombeArray[cpt].x = x;
       bombeArray[cpt].y = y;
@@ -302,6 +356,7 @@ void DropBombe(byte x,byte y, Bombe * bombeArray,byte distE )
 
 bool TileIsOk(byte x,byte y)
 {
+  //recherche des bombes si il y a une bombe on ne peut pas bougé
   byte tile = getTile(x,y);
   return tile == 0 || tile > 2;
 }
@@ -310,6 +365,9 @@ void DrawPlayers()
 {
   drawPlayer(masterPlayer);
   drawPlayer(slavePlayer);
+
+  drawPlayer(monstre1);
+  drawPlayer(monstre2);
 }
 
 void DrawBombes()
@@ -357,7 +415,15 @@ void UpdateBombes()
 
 void drawPlayer(Player play)
 {
-  gb.display.drawCircle(play.x + 2,play.y + 2,2);
+  //gb.display.drawCircle(play.x + 2,play.y + 2,2);
+  if(!play.isMonster)
+  {
+    gb.display.drawBitmap(play.x,play.y,MiniBomber);
+  }
+  else 
+  {
+    gb.display.drawBitmap(play.x,play.y,MiniMonster);
+  }
 }
 
 void ExplosionBombe(Bombe laBombe)
@@ -439,6 +505,9 @@ void TestReactionEnChaineBombe(byte x,byte y)
   }
 
 }
+
+
+
 
 
 
