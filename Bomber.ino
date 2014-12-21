@@ -32,6 +32,7 @@ void TestReactionEnChaineBombe(byte x,byte y);
 bool SetTuileExplosion(byte tuileX,byte tuileY);
 void updatePlayerAll(Player *play);
 void updateMonstre(Player *monstre);
+bool MonsterCanDropBombe(Player monster);
 
 boolean isMaster = false;
 boolean paused = true;
@@ -62,8 +63,7 @@ Player masterPlayer, slavePlayer, monstre1, monstre2;
 Bombe masterBombe[NB_BOMBE];
 Bombe slaveBombe[NB_BOMBE];
 
-Bombe M1Bombe[NB_BOMBE];
-Bombe M2Bombe[NB_BOMBE];
+Bombe monstreBombe[NB_BOMBE];
 
 byte distExplosion;
 const char strMaster[] PROGMEM = "Host (master)";
@@ -104,8 +104,8 @@ void initGame()
   {
     masterBombe[i].isAlive = false;
     slaveBombe[i].isAlive = false;
+    monstreBombe[i].isAlive = false;
   }
-
 }
 
 void P1StartPos()
@@ -217,11 +217,89 @@ void updateMonstres()
 
 void updateMonstre(Player *monstre)
 {
-  if(monstre->x == (monstre->xt*4))
+  if(monstre->x == (monstre->xt*4) && monstre->y == (monstre->yt*4))
   {
-    //on vas choisir une nouvelle destination 
+    //on tente de poser une bombe 
+    if(MonsterCanDropBombe(*monstre))
+    {
+      DropBombe(monstre->xt*4,monstre->yt*4,monstreBombe);
+    }
+
+    bool findPath = false;
+    byte cptSortie = 4;
+    do
+    {
+
+      //on vas choisir une nouvelle destination 
+      switch (random(0,4))
+      {
+      case 0 ://bas
+        if(TileIsOk(monstre->xt,(monstre->yt+1)))
+        {
+          findPath = true;
+          monstre->yt++;
+        }
+        break;
+      case 1 ://droite
+        if(TileIsOk((monstre->xt+1),(monstre->yt)))
+        {
+          findPath = true;
+          monstre->xt++;
+        }
+        break;
+      case 2 ://haut
+        if(TileIsOk(monstre->xt,(monstre->yt-1)))
+        {
+          findPath = true;
+          monstre->yt--;
+        }
+        break;
+      case 3 ://gauche
+        if(TileIsOk((monstre->xt - 1),(monstre->yt)))
+        {
+          findPath = true;
+          monstre->xt--;
+        }
+        break;
+      }
+      if(cptSortie == 0)
+      {
+        //on bouge pas
+        findPath = true;
+      }
+      cptSortie--;
+    }
+    while(!findPath);
+
   }
-  
+
+}
+bool MonsterCanDropBombe(Player monster)
+{
+  if(random(0,15) == 0)
+    return true;
+  //haut
+  byte tile = getTile((monster.xt-1),monster.yt);
+  if(tile == 2)
+  {
+    return true;
+  } 
+  tile = getTile((monster.xt+1),monster.yt);
+  if(tile == 2)
+  {
+    return true;
+  }
+  tile = getTile((monster.xt),(monster.yt-1));
+  if(tile == 2)
+  {
+    return true;
+  }
+  tile = getTile((monster.xt),(monster.yt+1));
+  if(tile == 2)
+  {
+    return true;
+  }
+  return false;
 }
 
 void gameOverScreen()
@@ -382,6 +460,10 @@ void DrawBombes()
     {
       gb.display.fillCircle(slaveBombe[i].x+2,slaveBombe[i].y+2,1);
     }
+    if(monstreBombe[i].isAlive && monstreBombe[i].timer%20>5)//1/4 du temps eteint
+    {
+      gb.display.fillCircle(monstreBombe[i].x+2,monstreBombe[i].y+2,1);
+    }
   }
 }
 
@@ -409,8 +491,17 @@ void UpdateBombes()
       }
       slaveBombe[i].timer--;
     }
+    if(monstreBombe[i].isAlive)
+    {
+      if(monstreBombe[i].timer == 0)
+      {
+        monstreBombe[i].isAlive = false;
+        //explosion de la bombe
+        ExplosionBombe(monstreBombe[i]);
+      }
+      monstreBombe[i].timer--;
+    }
   }
-
 }
 
 void drawPlayer(Player play)
@@ -502,9 +593,17 @@ void TestReactionEnChaineBombe(byte x,byte y)
       slaveBombe[i].isAlive = false;
       ExplosionBombe(slaveBombe[i]);
     }
+    if(monstreBombe[i].isAlive && monstreBombe[i].x == x && monstreBombe[i].y == y)
+    {
+      monstreBombe[i].isAlive = false;
+      ExplosionBombe(monstreBombe[i]);
+    }
   }
-
 }
+
+
+
+
 
 
 
