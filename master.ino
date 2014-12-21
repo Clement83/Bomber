@@ -8,7 +8,6 @@ void updateMaster(){
   //read from slave
   masterRead();
   masterWrite();
-
 }
 
 ///////////////////////////////////// MASTER READ
@@ -27,7 +26,7 @@ void masterRead(){
         break;
       case PLAYER_DROP_BOMB:
         if(Wire.read() == '1')
-          DropBombe(slavePlayer.x,slavePlayer.y,slaveBombe);
+          DropBombe(slavePlayer.x,slavePlayer.y,slaveBombe,DIST_EXPLOSION);
         break;
       case I_AM_DEAD:
         slavePlayer.isAlive = Wire.read() == '1';

@@ -84,7 +84,7 @@ void receiveEvent(int howMany)
         break;
       case PLAYER_DROP_BOMB:
         if(Wire.read() == '1')
-          DropBombe(masterPlayer.x,masterPlayer.y,masterBombe);
+          DropBombe(masterPlayer.x,masterPlayer.y,masterBombe,DIST_EXPLOSION);
         break;
       case I_AM_DEAD:
         masterPlayer.isAlive = Wire.read() == '1';

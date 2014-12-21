@@ -16,6 +16,7 @@ typedef struct {
   bool isAlive;
 }
 Bombe;
+
 void DropBombe(byte x,byte y, Bombe * bombeArray );
 byte getTile(byte x, byte y);
 void setTile(byte x, byte y,byte value);
@@ -78,11 +79,11 @@ void goTitleScreen()
 {
   gb.titleScreen(F("Bomber"));
   initGame();
+  currentMaze = 0;
 }
 
 void initGame()
 {
-  currentMaze = 0;
   P1StartPos();
   P2StartPos();
   loadNextMaze();
@@ -129,7 +130,7 @@ void loop(){
     isMaster = false;
     break;
   default:
-    gb.titleScreen(F("Duel")); //shows the main menu
+    goTitleScreen();
     break;
   }
 
@@ -191,37 +192,37 @@ void gameOverScreen()
         }
       }
     }
+    masterPlayer.isAlive = true;
+    slavePlayer.isAlive = true;
   }
 }
 
 void updatePlayerAll(Player *play)
 {
-  if(!paused){
-    bool isMove = ((play->x != play->xt*4) || (play->y != play->yt*4));
+  bool isMove = ((play->x != play->xt*4) || (play->y != play->yt*4));
 
-    if(isMove)
+  if(isMove)
+  {
+    if(play->x != play->xt*4)
     {
-      if(play->x != play->xt*4)
+      if(play->xt*4 > play->x)
       {
-        if(play->xt*4 > play->x)
-        {
-          play->x++;
-        }
-        else
-        {
-          play->x--;
-        }
+        play->x++;
       }
-      else if(play->y != play->yt*4)
+      else
       {
-        if(play->yt*4 > play->y)
-        {
-          play->y++;
-        }
-        else
-        {
-          play->y--;
-        }
+        play->x--;
+      }
+    }
+    else if(play->y != play->yt*4)
+    {
+      if(play->yt*4 > play->y)
+      {
+        play->y++;
+      }
+      else
+      {
+        play->y--;
       }
     }
   }
@@ -277,7 +278,7 @@ void updatePlayer(Player *play)
   }
 }
 
-void DropBombe(byte x,byte y, Bombe * bombeArray )
+void DropBombe(byte x,byte y, Bombe * bombeArray,byte distE )
 {
   byte cpt = 0;
   do
@@ -319,10 +320,6 @@ void DrawBombes()
     {
       gb.display.fillCircle(masterBombe[i].x+2,masterBombe[i].y+2,1);
     }
-  }
-
-  for(byte i=0;i<NB_BOMBE;i++)
-  {
     if(slaveBombe[i].isAlive && slaveBombe[i].timer%20>5)//1/4 du temps eteint
     {
       gb.display.fillCircle(slaveBombe[i].x+2,slaveBombe[i].y+2,1);
@@ -334,7 +331,7 @@ void UpdateBombes()
 {
   for(byte i=0;i<NB_BOMBE;i++)
   {
-    if(masterBombe[i].isAlive)//1/4 du temps eteint
+    if(masterBombe[i].isAlive)
     {
       if(masterBombe[i].timer == 0)
       {
@@ -344,7 +341,7 @@ void UpdateBombes()
       }
       masterBombe[i].timer--;
     }
-    if(slaveBombe[i].isAlive)//1/4 du temps eteint
+    if(slaveBombe[i].isAlive)
     {
       if(slaveBombe[i].timer == 0)
       {
@@ -429,12 +426,12 @@ void TestReactionEnChaineBombe(byte x,byte y)
   //recherche des reaction en chaine
   for(byte i=0;i<NB_BOMBE;i++)
   {
-    if(masterBombe[i].isAlive && masterBombe[i].x == x && masterBombe[i].y == y)//1/4 du temps eteint
+    if(masterBombe[i].isAlive && masterBombe[i].x == x && masterBombe[i].y == y)
     {
       masterBombe[i].isAlive = false;
       ExplosionBombe(masterBombe[i]);
     }
-    if(slaveBombe[i].isAlive && slaveBombe[i].x == x && slaveBombe[i].y == y)//1/4 du temps eteint
+    if(slaveBombe[i].isAlive && slaveBombe[i].x == x && slaveBombe[i].y == y)
     {
       slaveBombe[i].isAlive = false;
       ExplosionBombe(slaveBombe[i]);
@@ -442,6 +439,8 @@ void TestReactionEnChaineBombe(byte x,byte y)
   }
 
 }
+
+
 
 
 
