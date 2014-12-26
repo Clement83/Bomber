@@ -66,6 +66,19 @@ void masterWrite(){
   Wire.write(masterPlayer.isAlive? "1" : "0"); //identifier
   Wire.write(NUM_LEVEL); //identifier
   Wire.write(currentMaze); //identifier
+  //Gestion Monstre
+  Wire.write(MONSTRE1_X); //identifier
+  Wire.write(monstre1.xt); //identifier
+  Wire.write(MONSTRE1_Y); //identifier
+  Wire.write(monstre1.yt); //identifier
+  Wire.write(MONSTRE2_X); //identifier
+  Wire.write(monstre2.xt); //identifier
+  Wire.write(MONSTRE2_Y); //identifier
+  Wire.write(monstre2.yt); //identifier
+  Wire.write(MONSTRE1_DROP_BOMB); //identifier
+  Wire.write(monstre1.dropBombe ? '1' : '0'); //identifier
+  Wire.write(MONSTRE2_DROP_BOMB); //identifier
+  Wire.write(monstre2.dropBombe ? '1' : '0'); //identifier
   Wire.endTransmission();    // stop transmitting
 }
 

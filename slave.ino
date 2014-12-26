@@ -76,27 +76,47 @@ void receiveEvent(int howMany)
     char data_in = Wire.read(); // receive byte per byte
     byte numLevelTmp;
     switch(data_in){
-   case PLAYER_X:
-        masterPlayer.xt = Wire.read();
-        break;
-      case PLAYER_Y:
-        masterPlayer.yt = Wire.read();
-        break;
-      case PLAYER_DROP_BOMB:
-        if(Wire.read() == '1')
-          DropBombe(masterPlayer.xt*4,masterPlayer.yt*4,masterBombe);
-        break;
-      case I_AM_DEAD:
-        masterPlayer.isAlive = Wire.read() == '1';
-        break;
-      case NUM_LEVEL:
-         numLevelTmp= (byte)Wire.read();
-        if(currentMaze != numLevelTmp)
-        {
-          currentMaze = (numLevelTmp - 1);
-          loadNextMaze();
-        }
-        break;
+    case PLAYER_X:
+      masterPlayer.xt = Wire.read();
+      break;
+    case PLAYER_Y:
+      masterPlayer.yt = Wire.read();
+      break;
+    case PLAYER_DROP_BOMB:
+      if(Wire.read() == '1')
+        DropBombe(masterPlayer.xt*4,masterPlayer.yt*4,masterBombe);
+      break;
+    case I_AM_DEAD:
+      masterPlayer.isAlive = Wire.read() == '1';
+      break;
+    case NUM_LEVEL:
+      numLevelTmp= (byte)Wire.read();
+      if(currentMaze != numLevelTmp)
+      {
+        currentMaze = (numLevelTmp - 1);
+        loadNextMaze();
+      }
+      break;
+    case MONSTRE1_X: //identifier
+      monstre1.xt = Wire.read();
+      break;
+    case MONSTRE1_Y :
+      monstre1.yt = Wire.read();
+      break;
+    case MONSTRE2_X :
+      monstre2.xt = Wire.read();
+      break;
+    case MONSTRE2_Y :
+      monstre2.yt = Wire.read();
+      break;
+    case MONSTRE1_DROP_BOMB :
+      if(Wire.read() == '1')
+        DropBombe(monstre1.xt*4,monstre1.yt*4,monstreBombe);
+      break;
+    case MONSTRE2_DROP_BOMB :
+      if(Wire.read() == '1')
+        DropBombe(monstre2.xt*4,monstre2.yt*4,monstreBombe);
+      break;
     default:
       break;
     }
@@ -104,6 +124,7 @@ void receiveEvent(int howMany)
   slave_updated = true;
   disconnected = false;
 }
+
 
 
 
