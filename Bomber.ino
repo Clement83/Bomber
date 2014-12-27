@@ -37,6 +37,10 @@ void chercherCheminPossible(int * cheminPossible, Player *monstre);
 bool caseHavePlayer(char x,char y);
 bool caseHaveBombe(char x, char y);
 
+//Shake the screen Rodot Code
+byte shake_magnitude;
+byte shake_timeLeft;
+
 boolean isMaster = false;
 boolean paused = true;
 boolean disconnected = false;
@@ -195,7 +199,7 @@ void loop(){
       }
 
       updatePlayerAll(&masterPlayer);
-      updatePlayerAll(&slavePlayer);
+      if(!isSingle) updatePlayerAll(&slavePlayer);//1 seul joueur je ne fait pas ça !
       updatePlayerAll(&monstre1);
       updatePlayerAll(&monstre2);
 
@@ -218,7 +222,7 @@ void loop(){
       DrawBombes();
     }
 
-    if(!masterPlayer.isAlive ||  !slavePlayer.isAlive)
+    if(!masterPlayer.isAlive ||  !slavePlayer.isAlive || (isSingle && !monstre1.isAlive &&  !monstre2.isAlive))
     {
       gameOverScreen();
       initGame();
@@ -254,7 +258,7 @@ void updateMonstre(Player *monstre)
           oldValue = cheminPossible[i];
           choix = i;
         }
-       // Serial.print(cheminPossible[i]);
+        // Serial.print(cheminPossible[i]);
         //Serial.print(" | ");
       }
       //Serial.println("");
@@ -446,33 +450,33 @@ bool MonsterCanDropBombe(Player monster)
   {
     return false;
   }
-  
-    //Serial.print("[");
-    //Serial.print(evaluateCase((monster.xt-1),monster.yt));
-    //Serial.print("]");
+
+  //Serial.print("[");
+  //Serial.print(evaluateCase((monster.xt-1),monster.yt));
+  //Serial.print("]");
   if(evaluateCase((monster.xt-1),monster.yt)>50)
   {
     return false;
   }
-    //Serial.print("[");
-    //Serial.print(evaluateCase((monster.xt+1),monster.yt));
-    //Serial.print("]");
+  //Serial.print("[");
+  //Serial.print(evaluateCase((monster.xt+1),monster.yt));
+  //Serial.print("]");
   if(evaluateCase((monster.xt+1),monster.yt)>50)
   {
     return false;
   }
-  
-    //Serial.print("[");
-    //Serial.print(evaluateCase((monster.xt),(monster.yt-1)));
-   //Serial.print("]");
+
+  //Serial.print("[");
+  //Serial.print(evaluateCase((monster.xt),(monster.yt-1)));
+  //Serial.print("]");
   if(evaluateCase((monster.xt),(monster.yt-1))>50)
   {
     return false;
   }
-  
-    //Serial.print("[");
-    //Serial.print(evaluateCase((monster.xt),(monster.yt+1)));
-    //Serial.print("]");
+
+  //Serial.print("[");
+  //Serial.print(evaluateCase((monster.xt),(monster.yt+1)));
+  //Serial.print("]");
   if(evaluateCase((monster.xt),(monster.yt+1))>50)
   {
     return false;
@@ -506,24 +510,37 @@ bool MonsterCanDropBombe(Player monster)
 
 void gameOverScreen()
 {
-  if(!masterPlayer.isAlive ||  !slavePlayer.isAlive)
+  endGame();
+  while(true)
   {
-    while(true)
+    if(gb.update())
     {
-      if(gb.update())
+      if(isSingle)
       {
         if(!masterPlayer.isAlive)
         {
-          gb.display.print(F("Player 2 WIN!"));
+          gb.display.println(F("YOU WIN!"));
         }
         else
         {
-          gb.display.print(F("Player 1 WIN!"));
+          gb.display.println(F("YOU LOOSE!"));
         }
-        if(gb.buttons.pressed(BTN_A) ||gb.buttons.pressed(BTN_B) ||gb.buttons.pressed(BTN_C))
+      }
+      else 
+      {
+        if(!masterPlayer.isAlive)
         {
-          break;
+          gb.display.println(F("Player 2 WIN!"));
         }
+        else
+        {
+          gb.display.println(F("Player 1 WIN!"));
+        }
+      }
+      gb.display.print(F("Press any key to continue"));
+      if(gb.buttons.pressed(BTN_A) ||gb.buttons.pressed(BTN_B) ||gb.buttons.pressed(BTN_C))
+      {
+        break;
       }
     }
     masterPlayer.isAlive = true;
@@ -660,9 +677,9 @@ bool TileIsOkMonster(byte x,byte y)
 void DrawPlayers()
 {
   drawPlayer(masterPlayer);
-  drawPlayer(slavePlayer);
+  if(!isSingle) drawPlayer(slavePlayer); //pas besoin de le desiner
 
-  drawPlayer(monstre1);
+    drawPlayer(monstre1);
   drawPlayer(monstre2);
 }
 
@@ -740,6 +757,9 @@ void drawPlayer(Player play)
 
 void ExplosionBombe(Bombe laBombe)
 {
+
+  shake_magnitude = 2;
+  shake_timeLeft = 5;
   //x droite
   for(byte decalageX = 0;decalageX<laBombe.distExplos;decalageX++)
   {
@@ -821,6 +841,33 @@ void TestReactionEnChaineBombe(byte x,byte y)
     }
   }
 }
+
+void endGame()
+{
+  int timer =0;
+  while(1){
+    if(gb.update()){
+
+      DrawMaze();
+      DrawPlayers();
+      DrawBombes();
+
+      //gb.display.drawBitmap(x-1, y-1, playerSprite, playerDir, NOFLIP);
+      gb.display.setColor(WHITE);
+      gb.display.fillRect(0,0,timer*2,LCDHEIGHT);
+      gb.display.fillRect(LCDWIDTH-timer*2,0,timer*2,LCDHEIGHT);
+      gb.display.setColor(BLACK, WHITE);
+      gb.display.cursorX = 12;
+      gb.display.cursorY = 1;
+      gb.display.print(F("GAME OVER!"));
+      timer++;
+      if(timer==((LCDWIDTH/4)+10))
+        break;
+    }
+  }
+}
+
+
 
 
 

@@ -88,10 +88,26 @@ byte getTile(byte x, byte y){
 void setTile(byte x, byte y,byte value){
   Maze[(y*WIDTH_MAZE)+x] = value;
 }
+int cameraX, cameraY;
+void shakeScreen(){
+  if(shake_timeLeft){
+    shake_timeLeft--;
+    cameraX += random(-shake_magnitude,shake_magnitude+1);
+    cameraY += random(-shake_magnitude,shake_magnitude+1);
+    byte backlightStep = gb.backlight.backlightMax / 4;
+    gb.backlight.set(gb.backlight.backlightValue-random(0,backlightStep*shake_magnitude));
+  }
+  else 
+  {
+    cameraX = 0;
+    cameraY = 0;
+  }
+}
 
 
 void DrawMaze()
 {
+  shakeScreen();
   for(byte y = 0; y < HEIGHT_MAZE; y++){
     for(byte x = 0; x < WIDTH_MAZE; x++){
       byte spriteID = getTile(x,y);
@@ -101,7 +117,7 @@ void DrawMaze()
       }
       else if(spriteID == 1)
       {
-        gb.display.fillRect(x*WIDTH_BLOCK , y*HEIGHT_BLOCK,WIDTH_BLOCK,HEIGHT_BLOCK);
+        gb.display.fillRect(((x*WIDTH_BLOCK) - cameraX), ((y*HEIGHT_BLOCK) - cameraY),WIDTH_BLOCK,HEIGHT_BLOCK);
       }
       else if(spriteID > 2)
       {
