@@ -121,7 +121,8 @@ void DrawMaze()
       }
       else if(spriteID > 2)
       {
-        gb.display.drawPixel(random((x*WIDTH_BLOCK), (x*WIDTH_BLOCK + WIDTH_BLOCK) )  , random((y*HEIGHT_BLOCK),(y*HEIGHT_BLOCK+HEIGHT_BLOCK)));
+        //gb.display.drawPixel(random((x*WIDTH_BLOCK), (x*WIDTH_BLOCK + WIDTH_BLOCK) )  , random((y*HEIGHT_BLOCK),(y*HEIGHT_BLOCK+HEIGHT_BLOCK)));
+        gb.display.fillCircle((x*WIDTH_BLOCK)+(WIDTH_BLOCK/2),(y*HEIGHT_BLOCK)+(HEIGHT_BLOCK/2),1);
         spriteID--;
         if(spriteID == 2)
           spriteID = 0;
