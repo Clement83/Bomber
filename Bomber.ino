@@ -517,7 +517,7 @@ void gameOverScreen()
     {
       if(isSingle)
       {
-        if(!masterPlayer.isAlive)
+        if(masterPlayer.isAlive)
         {
           gb.display.println(F("YOU WIN!"));
         }
@@ -537,7 +537,7 @@ void gameOverScreen()
           gb.display.println(F("Player 1 WIN!"));
         }
       }
-      gb.display.print(F("Press any key to continue"));
+      gb.display.print(F("Press any key"));
       if(gb.buttons.pressed(BTN_A) ||gb.buttons.pressed(BTN_B) ||gb.buttons.pressed(BTN_C))
       {
         break;
@@ -759,7 +759,7 @@ void ExplosionBombe(Bombe laBombe)
 {
 
   shake_magnitude = 2;
-  shake_timeLeft = 5;
+  shake_timeLeft = 3;
   //x droite
   for(byte decalageX = 0;decalageX<laBombe.distExplos;decalageX++)
   {

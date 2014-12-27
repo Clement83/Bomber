@@ -5,6 +5,8 @@
 #define HEIGHT_MAZE 12
 #define NB_MAZE 4
 
+const byte MiniExplode[] PROGMEM = {8,4,0x20,0xC0,0x30,0xA0,};
+
 
 const byte Maze1[HEIGHT_MAZE*WIDTH_MAZE] PROGMEM = {
   1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
@@ -122,7 +124,8 @@ void DrawMaze()
       else if(spriteID > 2)
       {
         //gb.display.drawPixel(random((x*WIDTH_BLOCK), (x*WIDTH_BLOCK + WIDTH_BLOCK) )  , random((y*HEIGHT_BLOCK),(y*HEIGHT_BLOCK+HEIGHT_BLOCK)));
-        gb.display.fillCircle((x*WIDTH_BLOCK)+(WIDTH_BLOCK/2),(y*HEIGHT_BLOCK)+(HEIGHT_BLOCK/2),1);
+        //gb.display.fillCircle((x*WIDTH_BLOCK)+(WIDTH_BLOCK/2),(y*HEIGHT_BLOCK)+(HEIGHT_BLOCK/2),1);
+        gb.display.drawBitmap((x*WIDTH_BLOCK),(y*HEIGHT_BLOCK),MiniExplode);
         spriteID--;
         if(spriteID == 2)
           spriteID = 0;
