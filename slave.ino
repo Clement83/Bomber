@@ -13,7 +13,7 @@ void updateSlave(){
     //wait for the master's interrupt
     delay(1);
     timout++;
-    if(timout >= 20){
+    if(timout >= 40){
       gb.popup(F("No master"),2);
       disconnected = true;
       paused = true;
@@ -40,6 +40,8 @@ void requestEvent()
   output[5] = slavePlayer.dropBombe ? '1' : '0'; 
   output[6] = I_AM_DEAD; 
   output[7] = slavePlayer.isAlive? '1' : '0';
+  output[8] = I_AM_ON_SCORE_SCREEN; 
+  output[9] = isOnScoreScreen? '1' : '0';
 
   if(paused){
     output[0] = SLAVE_PAUSED;
@@ -50,6 +52,8 @@ void requestEvent()
     output[5] = SLAVE_PAUSED;
     output[6] = SLAVE_PAUSED;
     output[7] = SLAVE_PAUSED;
+    output[8] = SLAVE_PAUSED;
+    output[9] = SLAVE_PAUSED;
   }
 
   if(isMaster){
@@ -61,6 +65,8 @@ void requestEvent()
     output[5] = I_AM_MASTER;
     output[6] = I_AM_MASTER;
     output[7] = I_AM_MASTER;
+    output[8] = I_AM_MASTER;
+    output[9] = I_AM_MASTER;
   }
 
   Wire.write(output);
@@ -89,14 +95,6 @@ void receiveEvent(int howMany)
     case I_AM_DEAD:
       masterPlayer.isAlive = Wire.read() == '1';
       break;
-    case NUM_LEVEL:
-      numLevelTmp= (byte)Wire.read();
-      if(currentMaze != numLevelTmp)
-      {
-        currentMaze = (numLevelTmp - 1);
-        loadNextMaze();
-      }
-      break;
     case MONSTRE1_X: //identifier
       monstre1.xt = Wire.read();
       break;
@@ -116,6 +114,15 @@ void receiveEvent(int howMany)
     case MONSTRE2_DROP_BOMB :
       if(Wire.read() == '1')
         DropBombe(monstre2.xt*4,monstre2.yt*4,monstreBombe);
+      break;
+    case MONSTRE1_DEAD : 
+      monstre1.isAlive = Wire.read() == '1';
+    break;
+    case MONSTRE2_DEAD : 
+      monstre2.isAlive = Wire.read() == '1';
+    break;
+    case I_AM_ON_SCORE_SCREEN :
+      if(Wire.read() == '1') paused = true;
       break;
     default:
       break;

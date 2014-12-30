@@ -32,16 +32,24 @@ void masterRead(){
         slavePlayer.isAlive = Wire.read() == '1';
         break;
       case SLAVE_PAUSED:
-        gb.popup(F("Slave paused"),2);
+        //gb.popup(F("Slave paused"),2);
         paused = true;
         break;
       case I_AM_MASTER:
         gb.popup(F("1 master max"),2);
         paused = true;
         break;
-      default:
-        gb.popup(F("Wrong slave data"),2);
+      case I_AM_ON_SCORE_SCREEN :
+      if(Wire.read() == '1')
+      {
         paused = true;
+        //gb.popup(F("Slave Score screen"),2);
+      }
+        break;
+      default:
+        //gb.popup(F("Wrong slave data"),2);
+        //wrongSlaveData = data_in;
+        //paused = true;
         break;
       }
     }
@@ -63,9 +71,10 @@ void masterWrite(){
   Wire.write(PLAYER_DROP_BOMB); //identifier
   Wire.write(masterPlayer.dropBombe ? '1' : '0'); //identifier
   Wire.write(I_AM_DEAD); //identifier
-  Wire.write(masterPlayer.isAlive? "1" : "0"); //identifier
-  Wire.write(NUM_LEVEL); //identifier
-  Wire.write(currentMaze); //identifier
+  Wire.write(masterPlayer.isAlive? '1' : '0'); //identifier
+  Wire.write(I_AM_ON_SCORE_SCREEN); //identifier
+  Wire.write(isOnScoreScreen? '1' : '0'); //identifier
+  
   //Gestion Monstre
   Wire.write(MONSTRE1_X); //identifier
   Wire.write(monstre1.xt); //identifier
@@ -79,6 +88,11 @@ void masterWrite(){
   Wire.write(monstre1.dropBombe ? '1' : '0'); //identifier
   Wire.write(MONSTRE2_DROP_BOMB); //identifier
   Wire.write(monstre2.dropBombe ? '1' : '0'); //identifier
+  Wire.write(MONSTRE1_DEAD); //identifier
+  Wire.write(monstre1.isAlive? '1' : '0'); //identifier
+  Wire.write(MONSTRE2_DEAD); //identifier
+  Wire.write(monstre2.isAlive? '1' : '0'); //identifier
+  
   Wire.endTransmission();    // stop transmitting
 }
 

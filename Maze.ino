@@ -1,9 +1,4 @@
 
-#define WIDTH_BLOCK 4
-#define HEIGHT_BLOCK 4
-#define WIDTH_MAZE 21
-#define HEIGHT_MAZE 12
-#define NB_MAZE 4
 
 const byte MiniExplode[] PROGMEM = {8,4,0x20,0xC0,0x30,0xA0,};
 
@@ -67,6 +62,20 @@ const byte Maze4[HEIGHT_MAZE*WIDTH_MAZE] PROGMEM = {
   1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 };
 
+byte Maze5[HEIGHT_MAZE*WIDTH_MAZE] PROGMEM = {
+  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+  1,0,0,0,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,1,
+  1,0,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,0,1,
+  1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,
+  1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,
+  1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,
+  1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,
+  1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,
+  1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,
+  1,0,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,0,1,
+  1,0,0,0,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,1,
+  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+};
 
 byte Maze[HEIGHT_MAZE*WIDTH_MAZE]  = {
   1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
@@ -82,6 +91,8 @@ byte Maze[HEIGHT_MAZE*WIDTH_MAZE]  = {
   1,0,0,0,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,1,
   1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 };
+
+
 
 byte getTile(byte x, byte y){
   return (Maze[(y*WIDTH_MAZE)+x]);
@@ -140,9 +151,9 @@ void DrawMaze()
   }
 }
 
-void loadNextMaze()
+void loadMazeByNumero(int8_t numero)
 {
-  switch(currentMaze)
+  switch(numero)
   {
     case 0 : 
     loadMaze(Maze1);
@@ -156,12 +167,11 @@ void loadNextMaze()
     case 3 : 
     loadMaze(Maze4);
     break;
+    case 4 : 
+    loadMaze(Maze5);
+    break;
     
   }
-  
-  currentMaze++;
-  
-  currentMaze = currentMaze%NB_MAZE;
 }
 
 void loadMaze(const byte *maze)
@@ -171,5 +181,31 @@ void loadMaze(const byte *maze)
       Maze[(y*WIDTH_MAZE)+x] = pgm_read_byte(maze + (y*WIDTH_MAZE)+x);
     }
   }
+}
+
+
+bool caseHavePlayer(char x,char y)
+{
+  return false;
+}
+
+bool caseHaveBombe(char x, char y)
+{
+  for(byte i=0;i<NB_BOMBE;i++)
+  {
+    if(masterBombe[i].isAlive && (masterBombe[i].x/4) == x && (masterBombe[i].y/4) == y )
+    {
+      return true;
+    }
+    if(slaveBombe[i].isAlive && (slaveBombe[i].x/4) == x && (slaveBombe[i].y/4) == y )
+    {
+      return true;
+    }
+    if(monstreBombe[i].isAlive && (monstreBombe[i].x/4) == x && (monstreBombe[i].y/4) == y)
+    {
+      return true;
+    }
+  }
+  return false;
 }
 
