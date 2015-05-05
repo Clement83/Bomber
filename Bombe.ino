@@ -11,6 +11,7 @@ void DropBombe(byte x,byte y, Bombe * bombeArray )
       bombeArray[cpt].isAlive = true;
       bombeArray[cpt].x = x;
       bombeArray[cpt].y = y;
+      playsoundfx(1,0);
       break;
     }
 
@@ -80,7 +81,7 @@ void UpdateBombes()
 
 void ExplosionBombe(Bombe laBombe)
 {
-
+  playsoundfx(0,0);
   shake_magnitude = 2;
   shake_timeLeft = 3;
   //x droite

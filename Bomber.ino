@@ -236,7 +236,23 @@ initScore();
   gameOverScreen();
 }
 
+const uint8_t soundfx[2][8] = {
+    {1,4,113,10,7,19,7,52}, // Explosion{1,0,55,12,7,12,7,13}
+    {0,19,9,1,7,15,7,4}, // Drop bombe
+};
 
+void playsoundfx(uint8_t fxno, uint8_t channel) {
+    gb.sound.command(0,soundfx[fxno][6],0,channel);
+    // set volume
+    gb.sound.command(1,soundfx[fxno][0],0,channel);
+    // set waveform
+    gb.sound.command(2,soundfx[fxno][5],-soundfx[fxno][4],channel);
+    // set volume slide
+    gb.sound.command(3,soundfx[fxno][3],soundfx[fxno][2]-58,channel);
+    // set pitch slide
+    gb.sound.playNote(soundfx[fxno][1],soundfx[fxno][7],channel);
+    // play note
+}
 
 
 
