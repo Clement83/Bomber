@@ -6,17 +6,20 @@ Gamebuino gb;
 
 typedef struct {
   char x, y,xt,yt,nextBombe;
-  bool isAlive, dropBombe, isMonster;
+  bool isAlive, isMonster;
 }
 Player;
 
 typedef struct {
   char x, y;
   byte timer,distExplos;
-  bool isAlive;
+  bool isAlive,explose;
 }
 Bombe;
 
+
+/* fake button for slave*/
+boolean bt_up,bt_down,bt_left,bt_right,bt_a,bt_b;
 
 void DropBombe(byte x,byte y, Bombe * bombeArray );
 byte getTile(byte x, byte y);
@@ -25,7 +28,7 @@ void drawPlayer(Player play,bool isP1);
 void updatePlayer(Player *play);
 bool TileIsOk(byte x, byte y);
 void ExplosionBombe(Bombe laBombe);
-void TestReactionEnChaineBombe(byte x,byte y);
+//void TestReactionEnChaineBombe(byte x,byte y);
 bool SetTuileExplosion(byte tuileX,byte tuileY);
 void updatePlayerAll(Player *play);
 void updateMonstre(Player *monstre);
@@ -34,6 +37,16 @@ void chercherCheminPossible(int * cheminPossible, Player *monstre);
 bool caseHavePlayer(char x,char y);
 bool caseHaveBombe(char x, char y);
 void loadMazeByNumero(int8_t numero);
+
+void pressUp(Player *play);
+void pressDown(Player *play);
+void pressLeft(Player *play);
+void pressRight(Player *play);
+void pressA(Player *play);
+void pressB(Player *play);
+
+void updateSlavePlayer(Player *play);
+
 
 //Shake the screen Rodot Code
 byte shake_magnitude;
@@ -44,27 +57,42 @@ boolean paused = true;
 boolean disconnected = false;
 boolean slave_updated = false;
 boolean isSingle;
-boolean isOnScoreScreen = false;
 
+
+byte stateGame = 20; //0 les lvl , 20 main menu , 10 scores, 50 game over
+int8_t currentLevel = -1;
 
 //multijoueur code
 #define SLAVE_PAUSED 1
 #define I_AM_MASTER 2
-#define I_AM_ON_SCORE_SCREEN 3
-#define PLAYER_X 10
-#define PLAYER_Y 11
-#define MONSTRE1_X 12
-#define MONSTRE1_Y 13
-#define MONSTRE2_X 14
-#define MONSTRE2_Y 15
-#define PLAYER_DROP_BOMB 21
-#define MONSTRE1_DROP_BOMB 22
-#define MONSTRE2_DROP_BOMB 23
-#define I_AM_DEAD 30 //si je meurt je previent mon pote
-#define MONSTRE1_DEAD 31 //si je meurt je previent mon pote
-#define MONSTRE2_DEAD 32 //si je meurt je previent mon pote
-#define NUM_LEVEL 40
-#define SLAVE_DATA_BUFFER_LENGTH 10
+
+#define STATE_GAME 3
+
+
+#define PLAYER1_X 10
+#define PLAYER1_Y 11
+#define PLAYER1_IS_ALIVE 12
+#define PLAYER2_X 20
+#define PLAYER2_Y 21
+#define PLAYER2_IS_ALIVE 22
+#define MONSTRE1_X 30
+#define MONSTRE1_Y 31
+#define MONSTRE1_IS_ALIVE 32
+#define MONSTRE2_X 40
+#define MONSTRE2_Y 41
+#define MONSTRE2_IS_ALIVE 42
+
+#define NUM_LEVEL 50
+
+#define SLAVE_DATA_BUFFER_LENGTH 12
+
+/*SLAVE*/
+#define BT_UP 61
+#define BT_DOWN 62
+#define BT_LEFT 63
+#define BT_RIGHT 64
+#define BT_A 65
+#define BT_B 66
 
 
 #define TIMER_BOMBE 80;
@@ -116,8 +144,16 @@ void initScore()
     winner[i] = 0;
   }
 }
+
+int8_t timerAnimEndGame =0;
+void resetGame()
+{
+  currentLevel = -1;
+  stateGame = 20;
+}
 void initGame()
 {
+  timerAnimEndGame =0;
   P1StartPos();
   P2StartPos();
   M1StartPos();
@@ -135,105 +171,150 @@ void initGame()
 
 void loop(){
 
-  paused = true;
-
-  switch(gb.menu(menu, 3)){
-  case 0: //sigle player
-    paused = false;
-    disconnected = true;
-    isMaster = true;
-    isSingle = true;
-    break;
-  case 1: //Host
-    paused = false;
-    disconnected = false;
-    isMaster = true;
-    isSingle = false;
-    break;
-  case 2: //Join
-    paused = false;
-    disconnected = false;
-    isMaster = false;
-    isSingle = false;
-    break;
-  default:
-    goTitleScreen();
-    break;
-  }
-initScore();
-  for(int8_t currentLevelCounter = 0; currentLevelCounter<NB_MAZE;currentLevelCounter++)
+  if(gb.update())
   {
-    loadMazeByNumero(currentLevelCounter);
-    while(true)
+    if(stateGame == 20)
     {
-      if(gb.update())
-      {
+      paused = true;
+      switch(gb.menu(menu, 3)){
+        case 0: //sigle player
+          paused = false;
+          disconnected = true;
+          isMaster = true;
+          isSingle = true;
+          stateGame=1;
+          break;
+        case 1: //Host
+          paused = false;
+          disconnected = false;
+          isMaster = true;
+          isSingle = false;
+          stateGame=1;
+          break;
+        case 2: //Join
+          paused = false;
+          disconnected = false;
+          isMaster = false;
+          isSingle = false;
+          break;
+        default:
+          goTitleScreen();
+          break;
+      }
+    }
+    else if(stateGame==0)
+    {
         if(gb.buttons.pressed(BTN_C))
         {
-          break;
+          stateGame = 51;
         }
-
-        updatePlayerAll(&masterPlayer);
-        if(!isSingle) updatePlayerAll(&slavePlayer);//1 seul joueur je ne fait pas ça !
-        updatePlayerAll(&monstre1);
-        updatePlayerAll(&monstre2);
-
+  
+        
         if(isMaster)
         {
           updatePlayer(&masterPlayer);
           updateMonstres();
-          if(!isSingle) updateMaster();
+          if(!isSingle) 
+          {
+            //updatePlayer(&slavePlayer);
+            updateMaster();
+            updatePlayerAll(&slavePlayer);
+          }
+          updatePlayerAll(&masterPlayer);
+          updatePlayerAll(&monstre1);
+          updatePlayerAll(&monstre2);
+          UpdateBombes();
         }
         else
         {
-          updatePlayer(&slavePlayer);
-          if(!isSingle) updateSlave();
+          if(!isSingle){
+            updateSlavePlayer(&slavePlayer);           
+            updateSlave();
+          }
         }
-
-        UpdateBombes();
-
-        DrawMaze();
-        DrawPlayers();
-        DrawBombes();
-      }
-
+  
+  
+      DrawMaze();
+      DrawPlayers();
+      DrawBombes();
+    
       if(!masterPlayer.isAlive ||  !slavePlayer.isAlive || (isSingle && !monstre1.isAlive &&  !monstre2.isAlive))
       {
         if(masterPlayer.isAlive)
         {
-          winner[currentLevelCounter] = 1;
+          winner[currentLevel] = 1;
         }
         else if(!isSingle && slavePlayer.isAlive)
         {
-          winner[currentLevelCounter] = 2;
+          winner[currentLevel] = 2;
         }
         else if(monstre1.isAlive && monstre2.isAlive)
         {
-          winner[currentLevelCounter] = random(3,5);
+          winner[currentLevel] = random(3,5);
         }
         else if(monstre1.isAlive)
         {
-          winner[currentLevelCounter] = 3;
+          winner[currentLevel] = 3;
         }
         else if(monstre2.isAlive)
         {
-          winner[currentLevelCounter] = 4;
+          winner[currentLevel] = 4;
         }
-        break;
-      };
+        stateGame = 10;
+      }
     }
-    
-    if(ScoreScreen())
+    else if(stateGame == 11)
     {
-      initGame();
+      updateNetwork();
+      ScoreScreen();
+    }
+    else if(stateGame == 10)
+    {
+      updateNetwork();
+      endGame();
+    }
+    else if(stateGame == 12)
+    {
+      updateNetwork();
+      endGame();
+    }
+    else if(stateGame == 1)
+    {
+      updateNetwork();
+      if(isMaster)
+      {
+        initGame();
+        stateGame = 0;
+        currentLevel++;
+        loadMazeByNumero(currentLevel);
+      }
+    }
+    else if(stateGame == 50)
+    {
+      updateNetwork();
+      gameOverScreen();
+    }
+    else if(stateGame == 51)
+    {
+      updateNetwork();
+      goTitleScreen();
+    }
+  }
+}
+
+void updateNetwork()
+{
+  if(!isSingle)
+  {
+    if(isMaster)
+    {
+       updateMaster();
     }
     else
     {
-      break;
+      updateSlave();
     }
   }
-
-  gameOverScreen();
 }
 
 const uint8_t soundfx[2][8] = {

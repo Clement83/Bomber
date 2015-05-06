@@ -2,5 +2,6 @@ const byte titleScreenImage[] PROGMEM = {64,36,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0
 void goTitleScreen()
 {
   gb.titleScreen(titleScreenImage);
+  resetGame();
   initGame();
 }

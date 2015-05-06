@@ -94,7 +94,6 @@ void updateMonstre(Player *monstre)
     bool dontMove = false;
     if(monstre->isAlive)
     {
-      monstre->dropBombe = false;
       if(monstre->x == (monstre->xt*4) && monstre->y == (monstre->yt*4))
       {
         byte cptSortie = 4;
@@ -161,7 +160,6 @@ void updateMonstre(Player *monstre)
           if(MonsterCanDropBombe(*monstre))
           {
             DropBombe(monstre->xt*4,monstre->yt*4,monstreBombe);
-            monstre->dropBombe = true;
             monstre->nextBombe = NB_FRAME_EXPLOSION;
           }
           else
@@ -172,10 +170,6 @@ void updateMonstre(Player *monstre)
             }
           }
         }
-      }
-      if(getTile(monstre->xt,monstre->yt)>2)
-      {
-        monstre->isAlive = false;
       }
     }
   }
@@ -376,62 +370,124 @@ void updatePlayerAll(Player *play)
         }
       }
     }
+    
+    if(getTile(play->xt,play->yt)>2)
+    {
+      play->isAlive = false;
+    }
   }
 }
+void updateSlavePlayer(Player *play)
+{
+  if(play->isAlive)
+  {
+    if(!paused){
+      //bt_up,bt_down,bt_left,bt_right,bt_a,bt_b;
+      if(gb.buttons.repeat(BTN_RIGHT,1))
+      {
+        bt_right = true;
+      }
+      else if  (gb.buttons.repeat(BTN_LEFT,1))
+      {
+        bt_left = true;
+      }
+      else if(gb.buttons.repeat(BTN_UP,1))
+      {
+        bt_up = true;
+      }
+      else if  (gb.buttons.repeat(BTN_DOWN,1))
+      {
+        bt_down = true;
+      }
+
+      if(gb.buttons.pressed(BTN_A))
+      {
+        bt_a = true;
+      }
+    }
+  }
+}
+
 void updatePlayer(Player *play)
 {
   if(play->isAlive)
   {
     if(!paused){
-      play->dropBombe = false;
-
-      bool isMove = ((play->x != play->xt*4) || (play->y != play->yt*4));
-
-      if(!isMove)
+      
+      if(gb.buttons.repeat(BTN_RIGHT,1))
       {
-        if(gb.buttons.repeat(BTN_RIGHT,1))
-        {
-          if(TileIsOk((play->xt+1),play->yt))
-            play->xt++;
-        }
-        else if  (gb.buttons.repeat(BTN_LEFT,1))
-        {
-          if(TileIsOk((play->xt-1),play->yt))
-            play->xt--;
-        }
-        else if(gb.buttons.repeat(BTN_UP,1))
-        {
-          if(TileIsOk(play->xt,(play->yt-1)))
-            play->yt--;
-        }
-        else if  (gb.buttons.repeat(BTN_DOWN,1))
-        {
-          if(TileIsOk(play->xt,(play->yt+1)))
-            play->yt++;
-        }
+        pressRight(play);
+      }
+      else if  (gb.buttons.repeat(BTN_LEFT,1))
+      {
+        pressLeft(play);
+      }
+      else if(gb.buttons.repeat(BTN_UP,1))
+      {
+        pressUp(play);
+      }
+      else if  (gb.buttons.repeat(BTN_DOWN,1))
+      {
+        pressDown(play);
       }
 
-      if  (gb.buttons.pressed(BTN_A))
+      if(gb.buttons.pressed(BTN_A))
       {
-        if(!caseHaveBombe(play->xt,play->yt))
-        {
-          if(isMaster)
-          {
-            DropBombe(play->xt*4,play->yt*4,masterBombe);
-          }
-          else
-          {
-            DropBombe(play->xt*4,play->yt*4,slaveBombe);
-          }
-          play->dropBombe = true;
-        }
-      }
-      if(getTile(play->xt,play->yt)>2)
-      {
-        play->isAlive = false;
+        pressA(play);
       }
     }
   }
+}
+
+void pressUp(Player *play)
+{
+  bool isMove = ((play->x != play->xt*4) || (play->y != play->yt*4));
+
+  if(!isMove)
+    if(TileIsOk(play->xt,(play->yt-1)))
+          play->yt--;
+}
+void pressDown(Player *play)
+{
+  bool isMove = ((play->x != play->xt*4) || (play->y != play->yt*4));
+
+  if(!isMove)
+    if(TileIsOk(play->xt,(play->yt+1)))
+      play->yt++;
+}
+void pressLeft(Player *play)
+{
+  bool isMove = ((play->x != play->xt*4) || (play->y != play->yt*4));
+
+  if(!isMove)
+    if(TileIsOk((play->xt-1),play->yt))
+      play->xt--;
+}
+void pressRight(Player *play)
+{
+  bool isMove = ((play->x != play->xt*4) || (play->y != play->yt*4));
+
+  if(!isMove)
+    if(TileIsOk((play->xt+1),play->yt))
+      play->xt++;
+}
+void pressA(Player *play)
+{
+  if(!caseHaveBombe(play->xt,play->yt))
+  {
+    if(isMaster)
+    {
+      DropBombe(play->xt*4,play->yt*4,masterBombe);
+    }
+    else
+    {
+      DropBombe(play->xt*4,play->yt*4,slaveBombe);
+    }
+  }
+}
+void pressB(Player *play)
+{
+  return;
 }
 
 bool TileIsOk(byte x,byte y)

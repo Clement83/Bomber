@@ -4,115 +4,57 @@ const byte MiniCoupe[] PROGMEM = {8,5,0x70,0xF8,0x70,0x20,0x70,};
 
 void gameOverScreen()
 {
-  //endGame();
+  gb.display.drawBitmap(0,0,GameOverScreen);
   
-    /*bool masterIsAlive = masterPlayer.isAlive;
-    bool slaveIsAlive = slavePlayer.isAlive;
-    masterPlayer.isAlive = true;
-    slavePlayer.isAlive = true;*/
-    isOnScoreScreen = true;
-  while(true)
+  gb.display.cursorX = 10;
+  gb.display.cursorY = 42;
+  gb.display.print(F("Press any key"));
+  if(gb.buttons.pressed(BTN_A) ||gb.buttons.pressed(BTN_B) ||gb.buttons.pressed(BTN_C))
   {
-    if(gb.update())
-    {
-      gb.display.drawBitmap(0,0,GameOverScreen);
-     /* gb.display.cursorX = 27 + random(0,2);
-      gb.display.cursorY = 32 + random(0,2);
-
-        if( (isMaster && masterIsAlive) || (!isMaster && slaveIsAlive))
-        {
-          gb.display.println(F("YOU WIN!"));
-        }
-        else
-        {
-          gb.display.println(F("YOU LOOSE!"));
-        }*/
-      
-      gb.display.cursorX = 10 ;
-      gb.display.cursorY = 42;
-      gb.display.print(F("Press any key"));
-      if(gb.buttons.pressed(BTN_A) ||gb.buttons.pressed(BTN_B) ||gb.buttons.pressed(BTN_C))
-      {
-        break;
-      }
-    }
+    stateGame = 51;
   }
-    isOnScoreScreen = false;
 }
 
-bool ScoreScreen()
-{
-  bool masterIsAlive = masterPlayer.isAlive;
-    bool slaveIsAlive = slavePlayer.isAlive;
-  endGame();
-    isOnScoreScreen = true;
-  while(true)
-  {
-    if(gb.update())
+void ScoreScreen()
+{   
+    gb.display.drawBitmap(0,0,TableauScore);
+ 
+    for(uint8_t i = 0; i<NB_MAZE;i++)
     {
-      if(!isSingle)
-      {
-        if(isMaster)
-        {
-           updateMaster();
-        }
-        else
-        {
-          updateSlave();
-        }
-      }
-      
-      gb.display.drawBitmap(0,0,TableauScore);
-      //gb.display.cursorX = 0;
-      //gb.display.cursorY = 0;
-      for(uint8_t i = 0; i<NB_MAZE;i++)
-      {
-        if(winner[i] == 0)
-          continue;
-        // 1, 1 : 22,14 + 7 en x par maze passer et 8 en y par joueur
-        gb.display.drawBitmap((22 +(6*i)), (6 + (8*winner[i])),MiniCoupe);
-      }
-      
-    masterPlayer.isAlive = true;
-    slavePlayer.isAlive = true;
-     
-      if(gb.buttons.pressed(BTN_A) ||gb.buttons.pressed(BTN_B))
-      {
-    isOnScoreScreen = false;
-        return true;
-      }
-      
-      if(gb.buttons.pressed(BTN_C))
-      {
-    isOnScoreScreen = false;
-        return false;
-      }
+      if(winner[i] == 0)
+        continue;
+      // 1, 1 : 22,14 + 7 en x par maze passer et 8 en y par joueur
+      gb.display.drawBitmap((22 +(6*i)), (6 + (8*winner[i])),MiniCoupe);
     }
-  }
+    
+    if(gb.buttons.pressed(BTN_A) ||gb.buttons.pressed(BTN_B))
+    {
+      if(currentLevel<NB_MAZE) stateGame = 1;
+      else stateGame = 50;
+    }
+    
+    if(gb.buttons.pressed(BTN_C))
+    {
+      stateGame = 50;
+    }
 }
 
 void endGame()
 {
-  int timer =0;
-  while(1){
-    if(gb.update()){
+  DrawMaze();
+  DrawPlayers();
+  DrawBombes();
 
-      DrawMaze();
-      DrawPlayers();
-      DrawBombes();
-
-      //gb.display.drawBitmap(x-1, y-1, playerSprite, playerDir, NOFLIP);
-      gb.display.setColor(WHITE);
-      gb.display.fillRect(0,0,timer*2,LCDHEIGHT);
-      gb.display.fillRect(LCDWIDTH-timer*2,0,timer*2,LCDHEIGHT);
-      gb.display.setColor(BLACK, WHITE);
-      gb.display.cursorX = 12;
-      gb.display.cursorY = 1;
-      //gb.display.print(F("GAME OVER!"));
-      timer++;
-      if(timer==((LCDWIDTH/4)+10))
-        break;
-    }
-  }
+  //gb.display.drawBitmap(x-1, y-1, playerSprite, playerDir, NOFLIP);
+  gb.display.setColor(WHITE);
+  gb.display.fillRect(0,0,timerAnimEndGame*2,LCDHEIGHT);
+  gb.display.fillRect(LCDWIDTH-timerAnimEndGame*2,0,timerAnimEndGame*2,LCDHEIGHT);
+  gb.display.setColor(BLACK, WHITE);
+  gb.display.cursorX = 12;
+  gb.display.cursorY = 1;
+  //gb.display.print(F("GAME OVER!"));
+  timerAnimEndGame++;
+  if(timerAnimEndGame==((LCDWIDTH/4)+10))
+    stateGame = 11;
 }
 

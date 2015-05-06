@@ -46,8 +46,9 @@ void UpdateBombes()
   {
     if(masterBombe[i].isAlive)
     {
-      if(masterBombe[i].timer == 0)
+      if(masterBombe[i].timer == 0 || getTile((masterBombe[i].x/4),(masterBombe[i].y/4))>2)
       {
+        masterBombe[i].timer = 0;
         masterBombe[i].isAlive = false;
         //explosion de la bombe
         ExplosionBombe(masterBombe[i]);
@@ -56,8 +57,9 @@ void UpdateBombes()
     }
     if(slaveBombe[i].isAlive)
     {
-      if(slaveBombe[i].timer == 0)
+      if(slaveBombe[i].timer == 0 || getTile((slaveBombe[i].x/4),(slaveBombe[i].y/4))>2)
       {
+        slaveBombe[i].timer = 0;
         slaveBombe[i].isAlive = false;
         //explosion de la bombe
         ExplosionBombe(slaveBombe[i]);
@@ -66,8 +68,9 @@ void UpdateBombes()
     }
     if(monstreBombe[i].isAlive)
     {
-      if(monstreBombe[i].timer == 0)
+      if(monstreBombe[i].timer == 0 || getTile((monstreBombe[i].x/4),(monstreBombe[i].y/4))>2)
       {
+        monstreBombe[i].timer = 0;
         monstreBombe[i].isAlive = false;
         //explosion de la bombe
         ExplosionBombe(monstreBombe[i]);
@@ -133,7 +136,7 @@ bool SetTuileExplosion(byte tuileX,byte tuileY)
   if( tuileId != 1 )
   {
     setTile(tuileX,tuileY,NB_FRAME_EXPLOSION);
-    TestReactionEnChaineBombe(tuileX*4,tuileY*4);
+    //TestReactionEnChaineBombe(tuileX*4,tuileY*4);
   }
   if(tuileId == 1 || tuileId == 2)
   {
@@ -143,6 +146,7 @@ bool SetTuileExplosion(byte tuileX,byte tuileY)
   return false;
 }
 
+/*
 void TestReactionEnChaineBombe(byte x,byte y)
 {
   //recherche des reaction en chaine
@@ -164,7 +168,7 @@ void TestReactionEnChaineBombe(byte x,byte y)
       ExplosionBombe(monstreBombe[i]);
     }
   }
-}
+}*/
 
 
 

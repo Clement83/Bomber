@@ -18,33 +18,37 @@ void masterRead(){
     while(Wire.available()){    // slave may send less than requested
       char data_in = Wire.read(); // receive byte per byte
       switch(data_in){
-      case PLAYER_X:
-        slavePlayer.xt = Wire.read();
-        break;
-      case PLAYER_Y:
-        slavePlayer.yt = Wire.read();
-        break;
-      case PLAYER_DROP_BOMB:
+      case BT_UP:
         if(Wire.read() == '1')
-          DropBombe(slavePlayer.xt*4,slavePlayer.yt*4,slaveBombe);
+          pressUp(&slavePlayer);
         break;
-      case I_AM_DEAD:
-        slavePlayer.isAlive = Wire.read() == '1';
-        break;
+      case BT_DOWN:
+        if(Wire.read() == '1')
+          pressDown(&slavePlayer);
+      break;
+      case BT_LEFT:
+        if(Wire.read() == '1')
+          pressLeft(&slavePlayer);
+      break;
+      case BT_RIGHT:
+        if(Wire.read() == '1')
+          pressRight(&slavePlayer);
+      break;
+      case BT_A:
+        if(Wire.read() == '1')
+          pressA(&slavePlayer);
+      break;
+      case BT_B:
+        if(Wire.read() == '1')
+          pressB(&slavePlayer);
+      break;
       case SLAVE_PAUSED:
-        //gb.popup(F("Slave paused"),2);
+        gb.popup(F("Slave paused"),2);
         paused = true;
         break;
       case I_AM_MASTER:
         gb.popup(F("1 master max"),2);
         paused = true;
-        break;
-      case I_AM_ON_SCORE_SCREEN :
-      if(Wire.read() == '1')
-      {
-        paused = true;
-        //gb.popup(F("Slave Score screen"),2);
-      }
         break;
       default:
         //gb.popup(F("Wrong slave data"),2);
@@ -63,35 +67,70 @@ void masterRead(){
 
 ///////////////////////////////////// MASTER WRITE
 void masterWrite(){
-  Wire.beginTransmission(2); // transmit to device #2
-  Wire.write(PLAYER_X); //identifier
-  Wire.write(masterPlayer.xt); //identifier
-  Wire.write(PLAYER_Y); //identifier
-  Wire.write(masterPlayer.yt); //identifier
-  Wire.write(PLAYER_DROP_BOMB); //identifier
-  Wire.write(masterPlayer.dropBombe ? '1' : '0'); //identifier
-  Wire.write(I_AM_DEAD); //identifier
-  Wire.write(masterPlayer.isAlive? '1' : '0'); //identifier
-  Wire.write(I_AM_ON_SCORE_SCREEN); //identifier
-  Wire.write(isOnScoreScreen? '1' : '0'); //identifier
+  // Player masterPlayer, slavePlayer, monstre1, monstre2;
+  /*
+  Bombe masterBombe[NB_BOMBE];
+Bombe slaveBombe[NB_BOMBE];
+
+Bombe monstreBombe[NB_BOMBE];
+
+#define PLAYER1_X 10
+#define PLAYER1_Y 11
+#define PLAYER1_IS_ALIVE 12
+#define PLAYER2_X 20
+#define PLAYER2_Y 21
+#define PLAYER2_IS_ALIVE 22
+#define MONSTRE1_X 30
+#define MONSTRE1_Y 31
+#define MONSTRE1_IS_ALIVE 32
+#define MONSTRE2_X 40
+#define MONSTRE2_Y 41
+#define MONSTRE2_IS_ALIVE 42
+
+  */
   
-  //Gestion Monstre
-  Wire.write(MONSTRE1_X); //identifier
-  Wire.write(monstre1.xt); //identifier
-  Wire.write(MONSTRE1_Y); //identifier
-  Wire.write(monstre1.yt); //identifier
-  Wire.write(MONSTRE2_X); //identifier
-  Wire.write(monstre2.xt); //identifier
-  Wire.write(MONSTRE2_Y); //identifier
-  Wire.write(monstre2.yt); //identifier
-  Wire.write(MONSTRE1_DROP_BOMB); //identifier
-  Wire.write(monstre1.dropBombe ? '1' : '0'); //identifier
-  Wire.write(MONSTRE2_DROP_BOMB); //identifier
-  Wire.write(monstre2.dropBombe ? '1' : '0'); //identifier
-  Wire.write(MONSTRE1_DEAD); //identifier
-  Wire.write(monstre1.isAlive? '1' : '0'); //identifier
-  Wire.write(MONSTRE2_DEAD); //identifier
-  Wire.write(monstre2.isAlive? '1' : '0'); //identifier
+  Wire.beginTransmission(2); // transmit to device #2
+  
+  //game state
+  Wire.write(STATE_GAME); 
+  Wire.write(stateGame);
+  Wire.write(NUM_LEVEL); 
+  Wire.write(currentLevel); 
+ 
+  
+  
+  Wire.write(PLAYER1_X); 
+  Wire.write(masterPlayer.x); 
+  Wire.write(PLAYER1_Y); 
+  Wire.write(masterPlayer.y); 
+  Wire.write(PLAYER1_IS_ALIVE); 
+  Wire.write(masterPlayer.isAlive? '1' : '0');
+  
+  
+  Wire.write(PLAYER2_X); 
+  Wire.write(slavePlayer.x); 
+  Wire.write(PLAYER2_Y); 
+  Wire.write(slavePlayer.y); 
+  Wire.write(PLAYER2_IS_ALIVE); 
+  Wire.write(slavePlayer.isAlive? '1' : '0');
+  
+  
+  Wire.write(MONSTRE1_X); 
+  Wire.write(monstre1.x); 
+  Wire.write(MONSTRE1_Y); 
+  Wire.write(monstre1.y); 
+  Wire.write(MONSTRE1_IS_ALIVE); 
+  Wire.write(monstre1.isAlive? '1' : '0');
+  
+  
+  Wire.write(MONSTRE2_X); 
+  Wire.write(monstre2.x); 
+  Wire.write(MONSTRE2_Y); 
+  Wire.write(monstre2.y); 
+  Wire.write(MONSTRE2_IS_ALIVE); 
+  Wire.write(monstre2.isAlive? '1' : '0');
+  
+  
   
   Wire.endTransmission();    // stop transmitting
 }
