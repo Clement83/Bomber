@@ -132,13 +132,13 @@ void DrawMaze()
       {
         gb.display.fillRect(((x*WIDTH_BLOCK) - cameraX), ((y*HEIGHT_BLOCK) - cameraY),WIDTH_BLOCK,HEIGHT_BLOCK);
       }
-      else if(spriteID > 2)
+      else if(spriteID > 10)
       {
         //gb.display.drawPixel(random((x*WIDTH_BLOCK), (x*WIDTH_BLOCK + WIDTH_BLOCK) )  , random((y*HEIGHT_BLOCK),(y*HEIGHT_BLOCK+HEIGHT_BLOCK)));
         //gb.display.fillCircle((x*WIDTH_BLOCK)+(WIDTH_BLOCK/2),(y*HEIGHT_BLOCK)+(HEIGHT_BLOCK/2),1);
         gb.display.drawBitmap((x*WIDTH_BLOCK),(y*HEIGHT_BLOCK),MiniExplode);
         spriteID--;
-        if(spriteID == 2)
+        if(spriteID == 10)
           spriteID = 0;
           
         setTile(x,y,spriteID);

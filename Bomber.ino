@@ -1,3 +1,11 @@
+/**
+*Bomber V0.1
+*Code Clement 
+*Art Quirby64 & Clement
+*
+*/
+
+
 #include <SPI.h>
 #include <Gamebuino.h>
 Gamebuino gb;
@@ -27,7 +35,7 @@ void setTile(byte x, byte y,byte value);
 void drawPlayer(Player play,bool isP1);
 void updatePlayer(Player *play);
 bool TileIsOk(byte x, byte y);
-void ExplosionBombe(Bombe laBombe);
+void ExplosionBombe(Bombe *laBombe);
 //void TestReactionEnChaineBombe(byte x,byte y);
 bool SetTuileExplosion(byte tuileX,byte tuileY);
 void updatePlayerAll(Player *play);
@@ -98,7 +106,7 @@ int8_t currentLevel = -1;
 #define TIMER_BOMBE 80;
 #define NB_BOMBE 6
 #define DIST_EXPLOSION 3//Distance de base de l'explosion
-#define NB_FRAME_EXPLOSION 10
+#define NB_FRAME_EXPLOSION 18
 #define DIST_VUE_IA 6
 
 //Maze define
@@ -108,6 +116,12 @@ int8_t currentLevel = -1;
 #define HEIGHT_MAZE 12
 #define NB_MAZE 5
 
+#define BOMBE_NETWORK 70
+#define BOMBE_NETWORK_EXP 71
+#define BOMBE_DIST_EXP 72
+#define BOMBE_X 73
+#define BOMBE_Y 74
+
 Player masterPlayer, slavePlayer, monstre1, monstre2;
 
 //tableau des winner
@@ -115,7 +129,6 @@ uint8_t winner[NB_MAZE];
 
 Bombe masterBombe[NB_BOMBE];
 Bombe slaveBombe[NB_BOMBE];
-
 Bombe monstreBombe[NB_BOMBE];
 
 byte distExplosion;

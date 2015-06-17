@@ -90,6 +90,73 @@ Bombe monstreBombe[NB_BOMBE];
   */
   
   Wire.beginTransmission(2); // transmit to device #2
+  for(byte i=0;i<NB_BOMBE;i++)
+  {
+    if(masterBombe[i].isAlive && masterBombe[i].timer%20>5)//1/4 du temps eteint
+    {
+      Wire.write(BOMBE_X); 
+      Wire.write(masterBombe[i].x);
+      Wire.write(BOMBE_Y); 
+      Wire.write(masterBombe[i].y);
+      Wire.write(BOMBE_NETWORK); 
+      Wire.write(i);
+    }
+    if(masterBombe[i].explose)
+    {
+      masterBombe[i].explose = false;
+      
+      Wire.write(BOMBE_DIST_EXP); 
+      Wire.write(masterBombe[i].distExplos);
+      Wire.write(BOMBE_NETWORK_EXP); 
+      Wire.write(i);
+      
+    }
+
+    if(slaveBombe[i].isAlive && masterBombe[i].timer%20>5)//1/4 du temps eteint
+    {
+      Wire.write(BOMBE_X); 
+      Wire.write(slaveBombe[i].x);
+      Wire.write(BOMBE_Y); 
+      Wire.write(slaveBombe[i].y);
+      Wire.write(BOMBE_NETWORK); 
+      Wire.write((10+i));
+    }
+    if(slaveBombe[i].explose)
+    {
+      slaveBombe[i].explose = false;
+      
+      Wire.write(BOMBE_DIST_EXP); 
+      Wire.write(slaveBombe[i].distExplos);
+      Wire.write(BOMBE_NETWORK_EXP); 
+      Wire.write((10+i));
+      
+    }
+
+    if(monstreBombe[i].isAlive && masterBombe[i].timer%20>5)//1/4 du temps eteint
+    {
+      Wire.write(BOMBE_X); 
+      Wire.write(monstreBombe[i].x);
+      Wire.write(BOMBE_Y); 
+      Wire.write(monstreBombe[i].y);
+      Wire.write(BOMBE_NETWORK); 
+      Wire.write((20+i));
+    }
+    if(monstreBombe[i].explose)
+    {
+      monstreBombe[i].explose = false;
+      
+      Wire.write(BOMBE_DIST_EXP); 
+      Wire.write(monstreBombe[i].distExplos);
+      Wire.write(BOMBE_NETWORK_EXP); 
+      Wire.write((20 + i));
+      
+    }
+    //Wire.endTransmission(); // stop transmitting
+  }
+    
+ //Wire.endTransmission(); // stop transmitting
+  
+ //Wire.beginTransmission(2); // transmit to device #2
   
   //game state
   Wire.write(STATE_GAME); 
@@ -129,10 +196,11 @@ Bombe monstreBombe[NB_BOMBE];
   Wire.write(monstre2.y); 
   Wire.write(MONSTRE2_IS_ALIVE); 
   Wire.write(monstre2.isAlive? '1' : '0');
-  
-  
-  
   Wire.endTransmission();    // stop transmitting
+  
+  
+     
+    
 }
 
 

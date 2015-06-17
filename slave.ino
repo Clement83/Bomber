@@ -13,7 +13,7 @@ void updateSlave(){
     //wait for the master's interrupt
     delay(1);
     timout++;
-    if(timout >= 300){
+    if(timout >= 20){
       gb.popup(F("No master"),2);
       disconnected = true;
       paused = true;
@@ -89,7 +89,11 @@ void requestEvent()
 // function that executes whenever data is received from master
 // this function is registered as an event, see setup()
 void receiveEvent(int howMany)
-{
+{  
+  byte tmpData;
+  byte lastDistExplosion;
+  byte lastX,lastY;
+  
   while(Wire.available())    // slave may send less than requested
   {
     //
@@ -141,9 +145,76 @@ void receiveEvent(int howMany)
         stateGame = Wire.read();    
         break;
      case NUM_LEVEL :
-        byte nextLevel = Wire.read();
-        if(currentLevel != nextLevel) currentLevel = nextLevel;    
+        tmpData = Wire.read();
+        if(currentLevel != tmpData){
+          currentLevel = tmpData;    
+          loadMazeByNumero(currentLevel);
+        }
         break;
+    case BOMBE_DIST_EXP : 
+      lastDistExplosion = Wire.read();
+    break;
+    case BOMBE_NETWORK :
+        //0->9 bombe P1
+        //10->19 bombe P2
+        //20->29 bombe IA
+
+        gb.popup(F("Get a bombe"),5);
+        Bombe * laBombe1;
+        tmpData = (byte)Wire.read();
+        if(tmpData<10)
+        {
+          laBombe1 = &masterBombe[tmpData];
+        }
+        else if(tmpData<20)
+        {
+          tmpData = tmpData - 10;
+           laBombe1 = &slaveBombe[tmpData];
+        }
+        else if(tmpData<30)
+        {
+          tmpData = tmpData - 20;
+           laBombe1 = &monstreBombe[tmpData];
+        }
+        laBombe1->timer = TIMER_BOMBE;
+        laBombe1->isAlive = true;
+        laBombe1->x = lastX;
+        laBombe1->y = lastY;
+    break;
+    
+    case BOMBE_NETWORK_EXP :
+        //0->9 bombe P1
+        //10->19 bombe P2
+        //20->29 bombe IA
+        gb.popup(F("boom"),5);
+        tmpData = (byte)Wire.read();
+        Bombe * laBombe;
+        if(tmpData<10)
+        {
+          laBombe = &masterBombe[tmpData];
+        }
+        else if(tmpData<20)
+        {
+          tmpData = tmpData - 10;
+           laBombe = &slaveBombe[tmpData];
+        }
+        else if(tmpData<30)
+        {
+          tmpData = tmpData - 20;
+           laBombe = &monstreBombe[tmpData];
+        }
+        laBombe->isAlive = false;
+        laBombe->distExplos = lastDistExplosion;
+        ExplosionBombe(laBombe);
+
+    break;
+    
+    case BOMBE_X : 
+      lastX = Wire.read();
+      break;
+    case BOMBE_Y : 
+      lastY = Wire.read();
+      break;
         
       default:
         break;

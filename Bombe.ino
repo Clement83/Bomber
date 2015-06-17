@@ -51,7 +51,7 @@ void UpdateBombes()
         masterBombe[i].timer = 0;
         masterBombe[i].isAlive = false;
         //explosion de la bombe
-        ExplosionBombe(masterBombe[i]);
+        ExplosionBombe(&masterBombe[i]);
       }
       masterBombe[i].timer--;
     }
@@ -62,7 +62,7 @@ void UpdateBombes()
         slaveBombe[i].timer = 0;
         slaveBombe[i].isAlive = false;
         //explosion de la bombe
-        ExplosionBombe(slaveBombe[i]);
+        ExplosionBombe(&slaveBombe[i]);
       }
       slaveBombe[i].timer--;
     }
@@ -73,55 +73,54 @@ void UpdateBombes()
         monstreBombe[i].timer = 0;
         monstreBombe[i].isAlive = false;
         //explosion de la bombe
-        ExplosionBombe(monstreBombe[i]);
+        ExplosionBombe(&monstreBombe[i]);
       }
       monstreBombe[i].timer--;
     }
   }
 }
 
-
-
-void ExplosionBombe(Bombe laBombe)
+void ExplosionBombe(Bombe *laBombe)
 {
   playsoundfx(0,0);
   shake_magnitude = 2;
   shake_timeLeft = 3;
+  laBombe->explose = true;
   //x droite
-  for(byte decalageX = 0;decalageX<laBombe.distExplos;decalageX++)
+  for(byte decalageX = 0;decalageX<laBombe->distExplos;decalageX++)
   {
-    byte tuileX = laBombe.x/4 + decalageX;
-    byte tuileY = laBombe.y/4 ;
+    byte tuileX = laBombe->x/4 + decalageX;
+    byte tuileY = laBombe->y/4 ;
     if(SetTuileExplosion(tuileX,tuileY))
     {
       break;
     }
   }
   //x gauche
-  for(byte decalageX = 0;decalageX<laBombe.distExplos;decalageX++)
+  for(byte decalageX = 0;decalageX<laBombe->distExplos;decalageX++)
   {
-    byte tuileX = laBombe.x/4 - decalageX;
-    byte tuileY = laBombe.y/4 ;
+    byte tuileX = laBombe->x/4 - decalageX;
+    byte tuileY = laBombe->y/4 ;
     if(SetTuileExplosion(tuileX,tuileY))
     {
       break;
     }
   }
   //y bas
-  for(byte decalageY = 0;decalageY<laBombe.distExplos;decalageY++)
+  for(byte decalageY = 0;decalageY<laBombe->distExplos;decalageY++)
   {
-    byte tuileX = laBombe.x/4;
-    byte tuileY = laBombe.y/4  + decalageY;
+    byte tuileX = laBombe->x/4;
+    byte tuileY = laBombe->y/4  + decalageY;
     if(SetTuileExplosion(tuileX,tuileY))
     {
       break;
     }
   }
   //y haut
-  for(byte decalageY = 0;decalageY<laBombe.distExplos;decalageY++)
+  for(byte decalageY = 0;decalageY<laBombe->distExplos;decalageY++)
   {
-    byte tuileX = laBombe.x/4;
-    byte tuileY = laBombe.y/4  - decalageY;
+    byte tuileX = laBombe->x/4;
+    byte tuileY = laBombe->y/4  - decalageY;
     if(SetTuileExplosion(tuileX,tuileY))
     {
       break;

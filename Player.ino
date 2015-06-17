@@ -371,7 +371,7 @@ void updatePlayerAll(Player *play)
       }
     }
     
-    if(getTile(play->xt,play->yt)>2)
+    if(getTile(play->xt,play->yt)>10)
     {
       play->isAlive = false;
     }
@@ -497,7 +497,7 @@ bool TileIsOk(byte x,byte y)
     return false;
 
   byte tile = getTile(x,y);
-  return tile == 0 || tile > 2;
+  return tile == 0 || tile > 10;
 }
 bool TileIsOkMonster(byte x,byte y)
 {
